@@ -1,15 +1,7 @@
 #include "main.h"
-// Motors
+#include "chassis.hpp"
+Chassis roboChassis = Chassis(1,2,3,4,5,6,7);
 
-// Make sure that upon building the robot, the proper ports are picked and the proper motors are reversed. -Kazi 6/8/26
-pros::Motor forwardLeft(1);
-pros::Motor backLeft(2);
-pros::Motor forwardRight(3);
-pros::Motor backRight(4);
-pros::Motor middleLeft(5); //5.5w
-pros::Motor middleRight(6); //5.5w
-
-pros::Controller controllerMaster(pros::E_CONTROLLER_MASTER); // Controller
 /**
  * A callback function for LLEMU's center button.
  *
@@ -85,17 +77,7 @@ void autonomous() {}
  */
 void opcontrol() {
 	while (true) {
-		// Drive control
-		// The code below seperates the 3 controller axis' used for driving into variables that are then substituted into each motor
-		// output being left stick controls vertical and horizontal and right stick controlling turning
-		int32_t powerVertical = controllerMaster.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y); 
-		int32_t powerHorizontal = controllerMaster.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X); // these are defined as int32_t because thats what the controller returns
-		int32_t powerTurn = controllerMaster.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-		forwardLeft.move( (powerVertical + powerHorizontal) + powerTurn);
-		forwardRight.move((powerVertical - powerHorizontal) - powerTurn); // motor.move also expects int_32
-		backLeft.move((powerVertical - powerHorizontal) + powerTurn);
-		backRight.move( (powerVertical + powerHorizontal) - powerTurn);
-		
+		roboChassis.driverUpdate();
 		pros::delay(20);                               // Run for 20 ms then update
 	}
 }
