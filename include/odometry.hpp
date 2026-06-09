@@ -20,13 +20,13 @@ struct Pose{
 	float theta;
 };
 
-inline Pose globalPose {Config::initialPose}; // This is the pose that other classes will interact with 
+//inline Pose globalPose {Config::initialPose}; // GLOBAL VERSION This is the pose that other classes will interact with 
 
 class odometry {
 private:
     const float disR {Config::distanceRight}; //Distance from right sensor and tracking center 
     const float disB {Config::distanceLeft}; // Distance from left sensor and tracking center
-    
+    Pose globalPose {Config::initialPose}; // This is the pose that other classes will interact with 
     Chassis* mainChassis;
     float tolerance {Config::tolerance};
 
@@ -40,10 +40,19 @@ public:
     odometry(Chassis* _mainChassis);
 
 
-    /// @brief Updates Orientation and position values w/ changing ram values using a vector
+    /// @brief Sets new pose for robot
 	/// @param newPose new position vector
-    void updatePosition(Pose newPose);
+    void setPose(Pose newPose);
     
+    /// @brief sets pose without having to create a pose object
+    /// @param x new x value
+    /// @param y new y value
+    /// @param theta new theta/heading value
+    void setPose(float x, float y, float theta);
+
+    /// @brief getter for the pose of the robot
+    /// @returns a pose object of the robot
+    Pose getPose();
   
 
 

@@ -28,3 +28,11 @@ void odometry::updateOdometry(){
     globalPose.y += localOffsetRotated.y;
     globalPose.theta = mainChassis->getHeading();
 }
+
+void odometry::setPose(Pose newPose){
+    globalPose = newPose;
+}
+
+Pose odometry::getPose(){
+    return globalPose;
+}
