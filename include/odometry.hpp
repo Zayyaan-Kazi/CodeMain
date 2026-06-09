@@ -44,14 +44,8 @@ public:
 	/// @param newPose new position vector
     void updatePosition(Pose newPose);
     
-    /// @brief Gets the pointer to the position vector
-	/// @returns pointer to the position vector */
-    std::vector<float>* getPositionPointer();
+  
 
-
-    /// @brief updates encoder values
-    /// @note also automatically calls the calculate local offset, may need to do some c++ trickery */
-    void updateDistances();
 
 };
 

@@ -39,7 +39,7 @@ public:
     void initalizeRotationSensors(int8_t rotationRightPort, int8_t rotationBackPort);
     
     /// @brief Get the distance traveled by the rotation sensors since last check
-    /// @returns 2 floats, 1st returns right, 2nd returns back5
+    /// @returns 2 floats, 1st returns right, 2nd returns back
     std::pair<float,float> getRotationDeltas();
     
     /// @brief Gets the change in heading 

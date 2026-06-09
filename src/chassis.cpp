@@ -21,7 +21,7 @@ void Chassis::driverUpdate(){
 // initialzier for rotation sensors / tracking wheels
 void Chassis::initalizeRotationSensors(int8_t rotationRightPort, int8_t rotationBackPort){
     rotationRight = std::make_unique<pros::Rotation>(rotationRightPort);
-    rotationBack = std::make_unique<pros::Rotation>(rotationRightPort);
+    rotationBack = std::make_unique<pros::Rotation>(rotationBackPort);
 
     //ensure that the rotation sensors are at 0 and initalize prevPos
     rotationRight->reset_position();
@@ -31,9 +31,9 @@ void Chassis::initalizeRotationSensors(int8_t rotationRightPort, int8_t rotation
     headingLast = 0;
 }
 std::pair<float,float> Chassis::getRotationDeltas(){
-    // Get Current postition of sensors. Multiplied by 100 because sensors return in centidegrees
-    float rightRotationPos = rotationRight->get_position() * 100;
-    float backRotationPos = rotationBack->get_position() * 100;
+    // Get Current postition of sensors. Divided by 100 because sensors return in centidegrees
+    float rightRotationPos = rotationRight->get_position() / 100;
+    float backRotationPos = rotationBack->get_position() /100;
     
     // Get the Delta (difference) between the previous and current readings
     float rightDegDelta = (rightRotationPos) - rightPrevPos;
@@ -51,7 +51,8 @@ std::pair<float,float> Chassis::getRotationDeltas(){
 float Chassis::getHeadingDelta(){
     float heading = RoboMath::overflowCheck(robotIMU.get_heading()); //pull heading and ensure it is within [0,360)
     heading *= IMUSIGN; // apply CCW positive rotation
-    float headingDelta = RoboMath::subDegrees(heading,headingLast); //get the delta within [-180,180]    headingLast = heading;
+    float headingDelta = RoboMath::subDegrees(heading,headingLast); //get the delta within [-180,180]    
+    headingLast = heading; // reset heading last before returning
     return headingDelta;
 }
 float Chassis::getHeading(){

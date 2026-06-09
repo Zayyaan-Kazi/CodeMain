@@ -23,5 +23,5 @@ namespace Config{
     inline constexpr Pose initialPose = {0,0,0}; // (X,Y,THETA)
     inline constexpr float distanceRight = 0; // Distance from right sensor and tracking center
     inline constexpr float distanceLeft = 0; // Distance from left sensor and tracking center
-    float tolerance = 1e-5; // tolerance for 0s
+    inline constexpr float tolerance = 1e-5; // tolerance for 0s
 } // namespace Config
