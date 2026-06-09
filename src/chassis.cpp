@@ -1,21 +1,9 @@
 #include "chassis.hpp"
 #include "main.h"
+#include "robomath.hpp"
 // initialzier for motors, imu, and controller
-Chassis::Chassis(int8_t MFL, int8_t MBL, int8_t MFR, int8_t MBR, 
-    int8_t MML, int8_t MMR, int8_t _robotIMU) : forwardLeft(MFL), 
-    backLeft(MBL), forwardRight(MFR), backRight(MBR), middleLeft(MML), 
-    middleRight(MMR), robotIMU(_robotIMU), controllerMaster(pros::E_CONTROLLER_MASTER) {} 
-//
+Chassis::Chassis() : controllerMaster(pros::E_CONTROLLER_MASTER) {} 
 
-// initialzier for rotation sensors / tracking wheels
-void Chassis::initalizeRotationSensors(int8_t rotationRightPort, int8_t rotationBackPort){
-    rotationRight = std::make_unique<pros::Rotation>(rotationRightPort);
-    rotationBack = std::make_unique<pros::Rotation>(rotationRightPort);
-
-    //ensure that the rotation sensors are at 0
-    rotationRight->reset_position();
-    rotationBack->reset_position();
-}
 
 void Chassis::driverUpdate(){
     // Drive control
@@ -28,4 +16,44 @@ void Chassis::driverUpdate(){
 	forwardRight.move((powerVertical - powerHorizontal) - powerTurn); // motor.move also expects int_32
 	backLeft.move((powerVertical - powerHorizontal) + powerTurn);
 	backRight.move( (powerVertical + powerHorizontal) - powerTurn);	
+}
+
+// initialzier for rotation sensors / tracking wheels
+void Chassis::initalizeRotationSensors(int8_t rotationRightPort, int8_t rotationBackPort){
+    rotationRight = std::make_unique<pros::Rotation>(rotationRightPort);
+    rotationBack = std::make_unique<pros::Rotation>(rotationRightPort);
+
+    //ensure that the rotation sensors are at 0 and initalize prevPos
+    rotationRight->reset_position();
+    rotationBack->reset_position();
+    rightPrevPos = 0;
+    backPrevPos = 0;
+    headingLast = 0;
+}
+std::pair<float,float> Chassis::getRotationDeltas(){
+    // Get Current postition of sensors. Multiplied by 100 because sensors return in centidegrees
+    float rightRotationPos = rotationRight->get_position() * 100;
+    float backRotationPos = rotationBack->get_position() * 100;
+    
+    // Get the Delta (difference) between the previous and current readings
+    float rightDegDelta = (rightRotationPos) - rightPrevPos;
+    float backDegDelta = (backRotationPos) - backPrevPos;
+    
+    //Set the previous variable for next check
+    rightPrevPos = rightRotationPos;
+    backPrevPos = backRotationPos;
+    
+    //Convert the delta to inches
+    float rightInchDelta = rightDegDelta / 360 * wheelCircumference;
+    float backInchDelta = backDegDelta / 360 * wheelCircumference;
+    return {rightInchDelta,backInchDelta};
+}
+float Chassis::getHeadingDelta(){
+    float heading = RoboMath::overflowCheck(robotIMU.get_heading()); //pull heading and ensure it is within [0,360)
+    heading *= IMUSIGN; // apply CCW positive rotation
+    float headingDelta = RoboMath::subDegrees(heading,headingLast); //get the delta within [-180,180]    headingLast = heading;
+    return headingDelta;
+}
+float Chassis::getHeading(){
+    return robotIMU.get_heading();
 }

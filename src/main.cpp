@@ -1,6 +1,7 @@
 #include "main.h"
 #include "chassis.hpp"
-Chassis roboChassis = Chassis(1,2,3,4,5,6,7);
+#include "config.hpp"
+Chassis roboChassis = Chassis();
 
 /**
  * A callback function for LLEMU's center button.
@@ -27,8 +28,8 @@ void on_center_button() {
 void initialize() {
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
-
 	pros::lcd::register_btn1_cb(on_center_button);
+
 }
 
 /**
