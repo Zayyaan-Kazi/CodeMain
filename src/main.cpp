@@ -1,11 +1,15 @@
 #include "main.h"
+// Motors
+
 // Make sure that upon building the robot, the proper ports are picked and the proper motors are reversed. -Kazi 6/8/26
-pros::Motor leftForward(1);
-pros::Motor leftBack(2);
-pros::Motor rightForward(3);
-pros::Motor rightBack(4);
-pros::Motor leftAsterisk(5); //5.5w
-pros::Motor rightAsterisk(6); //5.5w
+pros::Motor forwardLeft(1);
+pros::Motor backLeft(2);
+pros::Motor forwardRight(3);
+pros::Motor backRight(4);
+pros::Motor middleLeft(5); //5.5w
+pros::Motor middleRight(6); //5.5w
+
+pros::Controller controllerMaster(pros::E_CONTROLLER_MASTER); // Controller
 /**
  * A callback function for LLEMU's center button.
  *
@@ -80,21 +84,18 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::MotorGroup left_mg({1, -2, 3});    // Creates a motor group with forwards ports 1 & 3 and reversed port 2
-	pros::MotorGroup right_mg({-4, 5, -6});  // Creates a motor group with forwards port 5 and reversed ports 4 & 6
-
-
 	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);  // Prints status of the emulated screen LCDs
-
-		// Arcade control scheme
-		int dir = master.get_analog(ANALOG_LEFT_Y);    // Gets amount forward/backward from left joystick
-		int turn = master.get_analog(ANALOG_RIGHT_X);  // Gets the turn left/right from right joystick
-		left_mg.move(dir - turn);                      // Sets left motor voltage
-		right_mg.move(dir + turn);                     // Sets right motor voltage
+		// Drive control
+		// The code below seperates the 3 controller axis' used for driving into variables that are then substituted into each motor
+		// output being left stick controls vertical and horizontal and right stick controlling turning
+		int32_t powerVertical = controllerMaster.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y); 
+		int32_t powerHorizontal = controllerMaster.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X); // these are defined as int32_t because thats what the controller returns
+		int32_t powerTurn = controllerMaster.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+		forwardLeft.move( (powerVertical + powerHorizontal) + powerTurn);
+		forwardRight.move((powerVertical - powerHorizontal) - powerTurn); // motor.move also expects int_32
+		backLeft.move((powerVertical - powerHorizontal) + powerTurn);
+		backRight.move( (powerVertical + powerHorizontal) - powerTurn);
+		
 		pros::delay(20);                               // Run for 20 ms then update
 	}
 }
