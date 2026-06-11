@@ -4,7 +4,7 @@
 #include <cmath>
 odometry::odometry(Chassis* _mainChassis) : mainChassis(_mainChassis){}
 
-void odometry::updateOdometry(){
+void odometry::updatePosition(){
     
     float headingDelta = mainChassis->getHeadingDelta();
     Pose localOffset; // create temporary pose to adjust without affecting the main one

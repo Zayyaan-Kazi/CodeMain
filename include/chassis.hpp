@@ -4,26 +4,26 @@
 class Chassis {
 private:
     //motors -- Drivetrain
-    pros::Motor frontLeft  {Config::frontLeftPort};
-    pros::Motor rearLeft {Config::rearLeftPort};
-    pros::Motor frontRight {Config::frontRightPort};
-    pros::Motor rearRight {Config::rearRightPort};
-    pros::Motor middleLeft {Config::middleLeftPort};
-    pros::Motor middleRight {Config::middleRightPort};
+    pros::Motor frontLeft  {Config::Ports::frontLeft};
+    pros::Motor rearLeft {Config::Ports::rearLeft};
+    pros::Motor frontRight {Config::Ports::frontRight};
+    pros::Motor rearRight {Config::Ports::rearRight};
+    pros::Motor middleLeft {Config::Ports::middleLeft};
+    pros::Motor middleRight {Config::Ports::middleRight};
 
     //sensors
-    pros::IMU robotIMU {Config::IMUport};
+    pros::IMU robotIMU {Config::Ports::IMU};
     std::unique_ptr<pros::Rotation> rotationRight; //defined with initalizeRotationSensors
     std::unique_ptr<pros::Rotation> rotationRear; //defined with initalizeRotationSensors
     
     pros::Controller controllerMaster; // defined initially, is this even a sensor?
 
     //Variables -- Odometry
-    float wheelCircumference {Config::wheelCircum};
+    float wheelCircumference {Config::Chassis::wheelCircum};
     float rightPrevPos; // Previous reading, in degrees, of right rotation sensor
     float rearPrevPos; // Previous reading, in degrees, of rear rotation sensor
     float headingLast; // Previous reading, in Degrees, of the robot heading
-    int IMUSIGN {Config::inertialSign}; // this is to flip the heading output because we need counter clockwise rotation to be +
+    int IMUSIGN {Config::Chassis::inertialSign}; // this is to flip the heading output because we need counter clockwise rotation to be +
 public:
     /** @brief Constructor, initalizes controller.
      * ```cpp
