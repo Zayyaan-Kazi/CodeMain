@@ -28,12 +28,12 @@ void odometry::updateOdometry(){
     
     float cosAvgHeading = cosf(avgHeading); //compute once and cache
     float sinAvgHeading = sinf(avgHeading); // compute once and cache
-    localOffsetRotated.x = localOffset.x * cosAvgHeading - localOffset.y * sinAvgHeading;
-    localOffsetRotated.y = localOffset.x * sinAvgHeading + localOffset.y * cosAvgHeading;
+    localOffsetRotated.x = localOffset.x * cosAvgHeading - localOffset.y * sinAvgHeading; //rotation matrix X
+    localOffsetRotated.y = localOffset.x * sinAvgHeading + localOffset.y * cosAvgHeading; //rotation matrix Y
     
-    globalPose.x += localOffsetRotated.x;
+    globalPose.x += localOffsetRotated.x; // add local pose updates to global pose
     globalPose.y += localOffsetRotated.y;
-    globalPose.theta = mainChassis->getHeading();
+    globalPose.theta = mainChassis->getHeading(); //update heading 
 }
 
 void odometry::setPose(Pose newPose){

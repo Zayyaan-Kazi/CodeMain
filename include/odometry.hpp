@@ -25,7 +25,7 @@ struct Pose{
 class odometry {
 private:
     const float disR {Config::distanceRight}; //Distance from right sensor and tracking center 
-    const float disB {Config::distanceLeft}; // Distance from left sensor and tracking center
+    const float disB {Config::distanceRear}; // Distance from left sensor and tracking center
     Pose globalPose {Config::initialPose}; // This is the pose that other classes will interact with 
     Chassis* mainChassis;
     float tolerance {Config::tolerance};
