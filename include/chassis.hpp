@@ -77,4 +77,27 @@ public:
      * ```
      * */
     float getHeading();
+    /** @brief Spins the X motors at a target RPM
+     *  @param FL the targeted RPM you want the front left motor to move
+     *  @param RL the targeted RPM you want the rear left motor to move
+     *  @param FR the targeted RPM you want the front right motor to move
+     *  @param RR the targeted RPM you want the rear right motor to move
+     *  @warning do not call this function whilst calling driverUpdate
+     *  ```cpp
+     *  //Set all drivetrain motors to 30 RPM
+     *  Chassis.moveDrivetrain(30,30,30,30);
+     *  ```
+     */
+    void moveDrivetrain(float FL, float RL, float FR, float RR);
+    /** @brief Spins the X motors at a target RPM in vertical, horizontal, and turning
+     *  @param verticalRPM target RPM for forward/backward movement
+     *  @param horizontalRPM target RPM for strafe/sideways movements
+     *  @param turningRPM target RPM for turning, as in changing heading
+     *  @warning do not call this function whilst calling driverUpdate
+     *  ```cpp
+     *  //move 50rpm forward, 40 rpm sideways, 20 rpm turning
+     *  chassis.moveXDrive(50,40,20);
+     *  ```
+     */
+    void moveXDrive(float verticalRPM, float horizontalRPM, float turningRPM);
 };
