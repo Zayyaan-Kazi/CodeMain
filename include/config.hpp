@@ -28,4 +28,18 @@ namespace Config{
         inline constexpr float distanceRear = 0; // Distance from rear sensor to tracking center
         inline constexpr float tolerance = 1e-5; // tolerance for 0s
     }//namespace Odometry
+
+    namespace velocityControl{
+        namespace feedForward{
+            inline constexpr float kS = 0; // minimum voltage to overcome friction
+            inline constexpr float kV = 0; // voltage to maintain a constant speed
+        }//namespace feedforward
+        namespace PI{
+            inline constexpr float kP = 0; // constant for proportional (distance left)
+            inline constexpr float kI = 0; // constant for integral (sum of distances)
+            inline constexpr float maxIntegral = 0; //prevents integral from heavily overpowering the motor
+            inline constexpr float integrealThreshold = 0; //prevents integral windup on large errors
+        }//namespace PI
+
+    }//namespace velocityControl
 } // namespace Config

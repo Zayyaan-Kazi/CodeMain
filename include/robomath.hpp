@@ -15,4 +15,12 @@ namespace RoboMath{
 	    delta -= 180.0f;
 	    return delta;
     }
+	/** * @brief returns 1 if number is positive -1 if negative
+	 */
+	int sign(float number){
+		if (number > 0){
+			return 1;
+		}
+		return -1;
+	}
 };
