@@ -25,33 +25,33 @@ void Chassis::driverUpdate(){
 
 // initialzier for rotation sensors / tracking wheels
 void Chassis::initalizeRotationSensors(int8_t rightRotationPort, int8_t rearRotationPort){
-    rotationRight = std::make_unique<pros::Rotation>(rightRotationPort);
-    rotationRear = std::make_unique<pros::Rotation>(rearRotationPort);
+    rotationVertical = std::make_unique<pros::Rotation>(rightRotationPort);
+    rotationHorizontal = std::make_unique<pros::Rotation>(rearRotationPort);
 
     //ensure that the rotation sensors are at 0 and initalize prevPos
-    rotationRight->reset_position();
-    rotationRear->reset_position();
-    rightPrevPos = 0;
-    rearPrevPos = 0;
+    rotationVertical->reset_position();
+    rotationHorizontal->reset_position();
+    verticalPrevPos = 0;
+    horizontalPrevPos = 0;
     headingLast = 0;
 }
-std::pair<float,float> Chassis::getRotationDeltas(){
+rotationDeltas Chassis::getRotationDeltas(){
     // Get Current postition of sensors. Divided by 100 because sensors return in centidegrees
-    float rightRotationPos = rotationRight->get_position() / 100;
-    float backRotationPos = rotationRear->get_position() /100;
+    float verticalRotationPos = rotationVertical->get_position() / 100;
+    float horizontalRotationPos = rotationHorizontal->get_position() /100;
     
     // Get the Delta (difference) between the previous and current readings
-    float rightDegDelta = (rightRotationPos) - rightPrevPos;
-    float backDegDelta = (backRotationPos) - rearPrevPos;
+    float verticalDegDelta = (verticalRotationPos) - verticalPrevPos;
+    float horizontalDegDelta = (horizontalRotationPos) - horizontalPrevPos;
     
     //Set the previous variable for next check
-    rightPrevPos = rightRotationPos;
-    rearPrevPos = backRotationPos;
+    verticalPrevPos = verticalRotationPos;
+    horizontalPrevPos = horizontalRotationPos;
     
     //Convert the delta to inches
-    float rightInchDelta = rightDegDelta / 360 * wheelCircumference;
-    float backInchDelta = backDegDelta / 360 * wheelCircumference;
-    return {rightInchDelta,backInchDelta};
+    float verticalInchDelta = verticalDegDelta / 360 * wheelCircumference;
+    float horizontalInchDelta = horizontalDegDelta / 360 * wheelCircumference;
+    return {verticalInchDelta,horizontalInchDelta};
 }
 float Chassis::getHeadingDelta(){
     float heading = RoboMath::overflowCheck(robotIMU.get_heading()); //pull heading and ensure it is within [0,360)
@@ -65,10 +65,15 @@ float Chassis::getHeading(){
 }
 
 void Chassis::moveDrivetrain(motorCommands userCommands){
-    fl.calculateVoltage(userCommands.fl, frontLeft.get_actual_velocity());
-    fr.calculateVoltage(userCommands.fr, frontRight.get_actual_velocity());
-    rl.calculateVoltage(userCommands.rl, rearLeft.get_actual_velocity());
-    rr.calculateVoltage(userCommands.rr, rearRight.get_actual_velocity());
+    int32_t flVoltage = static_cast<int32_t>(fl.calculateVoltage(userCommands.fl, frontLeft.get_actual_velocity()));//cast these to in32t because thats waht the motor takes as a parameter
+    int32_t frVoltage = static_cast<int32_t>(fr.calculateVoltage(userCommands.fr, frontRight.get_actual_velocity())); // its probably fine to leave them as floats but i'd like to state intention
+    int32_t rlVoltage = static_cast<int32_t>(rl.calculateVoltage(userCommands.rl, rearLeft.get_actual_velocity()));
+    int32_t rrVoltage = static_cast<int32_t>(rr.calculateVoltage(userCommands.rr, rearRight.get_actual_velocity()));
+
+    frontLeft.move_voltage(flVoltage);
+    frontRight.move_voltage(frVoltage);
+    rearLeft.move_voltage(rlVoltage);
+    rearRight.move_voltage(rrVoltage);
 
     /* this one uses the motor's onboard PID which can be... problematic
     frontLeft.move_velocity(userCommands.fl);
@@ -94,6 +99,7 @@ void Chassis::moveToPoint(Pose targetPose, moveToPoseParam movementParams){
         Pose currentPose = roboOdom->getPose();
         motorCommands velocityCommands = motionProfile.targetToMotorRPM(targetPose,currentPose,movementParams); //RPM
         moveDrivetrain(velocityCommands);
+        pros::delay(10); //
     }
     
 }

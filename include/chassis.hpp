@@ -16,15 +16,15 @@ private:
 
     //sensors
     pros::IMU robotIMU {Config::Ports::IMU};
-    std::unique_ptr<pros::Rotation> rotationRight; //defined with initalizeRotationSensors
-    std::unique_ptr<pros::Rotation> rotationRear; //defined with initalizeRotationSensors
+    std::unique_ptr<pros::Rotation> rotationVertical; //defined with initalizeRotationSensors
+    std::unique_ptr<pros::Rotation> rotationHorizontal; //defined with initalizeRotationSensors
     
     pros::Controller controllerMaster; // defined initially, is this even a sensor?
 
     //Variables -- Odometry
     float wheelCircumference {Config::Chassis::wheelCircum};
-    float rightPrevPos; // Previous reading, in degrees, of right rotation sensor
-    float rearPrevPos; // Previous reading, in degrees, of rear rotation sensor
+    float verticalPrevPos; // Previous reading, in degrees, of right rotation sensor
+    float horizontalPrevPos; // Previous reading, in degrees, of rear rotation sensor
     float headingLast; // Previous reading, in Degrees, of the robot heading
     int IMUSIGN {Config::Chassis::inertialSign}; // this is to flip the heading output because we need counter clockwise rotation to be +
     odometry* roboOdom = nullptr; // odom object to declare later
@@ -68,7 +68,7 @@ public:
     void initalizeRotationSensors(int8_t rightRotationPort, int8_t rearRotationPort);
     
     /** @brief Get the distance traveled by the rotation sensors since last check
-     *  @returns 2 floats, 1st returns right, 2nd returns back
+     *  @returns 2 floats
      *  @warning You need to initalize the rotation sensors before using this
      *  ```cpp
      *  auto deltas = chassis->getRotationDeltas();
@@ -76,7 +76,7 @@ public:
      *  float backDelta = deltas.second;
      * ``` 
      * */
-    std::pair<float,float> getRotationDeltas();
+    rotationDeltas getRotationDeltas();
     
     /**  @brief Gets the change in heading 
      * @returns 1 float, in degrees

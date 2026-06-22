@@ -16,10 +16,11 @@ void odometry::updatePosition(){
     float invHeadingDeltaRAD =  1.0f / headingDeltaRAD; // multiplication is faster than division on CPU
     
     if(fabsf(headingDelta) > tolerance){
-        localOffset.x = arcChordFactor * ((distanceDeltas.first * invHeadingDeltaRAD) + disR); 
-        localOffset.y = arcChordFactor * ((distanceDeltas.second * invHeadingDeltaRAD) + disB);
+        localOffset.x = arcChordFactor * ((distanceDeltas.horizontal * invHeadingDeltaRAD) + disR); 
+        localOffset.y = arcChordFactor * ((distanceDeltas.vertical * invHeadingDeltaRAD) + disB);
     }else{
-        return; // skip if rotation change is 0, this may need to be updated as we now using a holonomic
+        localOffset.x = distanceDeltas.horizontal;
+        localOffset.y = distanceDeltas.vertical;
     }
     
     //Rotate to global via Rotation Matrix (https://en.wikipedia.org/wiki/Rotation_matrix)

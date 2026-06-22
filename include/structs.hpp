@@ -32,3 +32,7 @@ struct PoseError {
     float distanceToTarget;
     bool usingHeadingPD; // is turn being managed by PD
 };
+struct rotationDeltas{
+    float vertical;
+    float horizontal;
+};

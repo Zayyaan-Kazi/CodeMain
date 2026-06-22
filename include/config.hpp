@@ -55,7 +55,7 @@ namespace Config{
 
     }//namespace velocityControl
     namespace positionalController {
-        float dt = 0.01f; // time elapsed in seconds between each call, should be 10 or 20ms
+        inline constexpr float dt = 0.01f; // time elapsed in seconds between each call, should be 10 or 20ms
         namespace headingPD {
             inline constexpr float kP = 0.0f; // assuming in/s
             inline constexpr float kD = 0.0f; // assuming in/s
