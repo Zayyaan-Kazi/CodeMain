@@ -4,10 +4,11 @@
 namespace Config{
     namespace Defaults {
         namespace moveToPose{
-            inline constexpr float finishTurnBy = 0; // what point along the line (in) to reach desired heading 
+            inline constexpr float turnCompletionDistance = 0; // what point along the line (in) to reach desired heading 
             inline constexpr float scaleToRPM = 0; // RPM the min-max normalization targets
             inline constexpr float captureRadius = 0; // radius (in) from target point to swap to positional PID
             inline constexpr float settleRadius = 0; // radius (in) from target point to consider it reached
+            inline constexpr float timeout;
 
         }//namespace moveToPose
     }// namespace defaultStructValues
@@ -30,7 +31,7 @@ namespace Config{
         inline constexpr float wheelCircum = 0; // Input later
         inline constexpr int inertialSign = 1; // incase we need to change to CCW positive
         inline constexpr float linearVelocity; // linear velocity of x drive (in/s) (not accounting for 1.41x increase)
-        inline constexpr float robotRadius; // distance between parallel wheel sets (in)
+        inline constexpr float robotRadius; // distance between parallel wheel sets (in)        
     }//namespace Chassis
 
     namespace Odometry{

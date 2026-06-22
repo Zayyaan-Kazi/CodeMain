@@ -19,11 +19,13 @@ motionProfiling();
 /**  * @brief write later you have notes on this -ZK
  * @param currentPose the pose of the robot
  * @param targetPose the pose you want the robot to be in
- * @param thetaD at what point along the line you want to reach theta. Change the variable name later
+ * @param turnCompletionDistance  at what point along the line you want to reach theta. Change the variable name later
 */
-velocities pointToTrajectory(Pose currentPose, Pose targetPose, float thetaD); //
+velocities pointToTrajectory(Pose currentPose, Pose targetPose,PoseError deltaPose, moveToPoseParam movementParams ); //
 /** * @brief write later, note that it has to be in RPM */
 motorCommands velocityToMotor(velocities velocityRPM);
 
 motorCommands scaleRPM(motorCommands rawCommands, float targetRPM);
+
+motorCommands targetToMotorRPM(Pose targetPose,Pose currentPose, moveToPoseParam movementParams);
 };

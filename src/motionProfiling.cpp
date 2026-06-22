@@ -2,29 +2,32 @@
 #include "motionProfiling.hpp"
 
 motionProfiling::motionProfiling() {}
-
-velocities motionProfiling::pointToTrajectory(Pose currentPose, Pose targetPose, float thetaD){
+//TODO: implement control for when turning is managed by PD
+velocities motionProfiling::pointToTrajectory(Pose currentPose, Pose targetPose,PoseError deltaPose, moveToPoseParam movementParams){
     //ensure all degrees are converted to radians
-    float curHeadingRAD = RoboMath::degToRad(currentPose.theta);
-    float targetThetaRAD = RoboMath::degToRad(targetPose.theta);
+    float curHeadingRAD = RoboMath::degToRad(currentPose.heading); 
+    float deltaThetaRAD = RoboMath::wrapRadian(RoboMath::degToRad(deltaPose.deltaDeg));
 
-    //deltas
-    float deltaX = targetPose.x - currentPose.x;
-    float deltaY = targetPose.y - currentPose.y;
-    float deltaThetaRAD = RoboMath::wrapRadian(targetThetaRAD - curHeadingRAD); // ensure radian is between [-pi, pi] for shortest path
-
-    float omegaRAD = (linearVelocity*deltaThetaRAD) / thetaD;  // Turning speed in rad/s
-    float omega = robotRadius* fabsf(omegaRAD); // this is the turning speed in in/s, we can use wheel travel to determine RPM
+    float omega; // defined here to keep scope
+    if(deltaPose.usingHeadingPD){
+        omega = movementParams.postTurnOmega;
+    }
+    else{
+        float turnDistance = deltaPose.distanceToTarget - movementParams.turnCompletionDistance;
+        float omegaRAD = (linearVelocity*deltaThetaRAD) / turnDistance;  // Turning speed in rad/s
+        omega = robotRadius* fabsf(omegaRAD); // this is the turning speed in in/s, we can use wheel travel to determine RPM
+    }
+    
 
     float vectorMagnitude =  linearVelocity - omega; //hypotenuse of our velocity vector
-    float vectorTheta = atan2f(deltaY,deltaX);
+    float vectorTheta = atan2f(deltaPose.deltaX,deltaPose.deltaY);
 
     float localTheta = vectorTheta - curHeadingRAD; // get us within local frame of robot
     // when debugging: if velocityX and velocityY have weird behavior try global frame
     float velocityX = vectorMagnitude*cosf(localTheta); // Legs of triangle
     float velocityY = vectorMagnitude*sinf(localTheta);
 
-    velocities returnVelocity = {velocityX,velocityY,omega}; // this is also a stupid name
+    velocities returnVelocity = {velocityX,velocityY,omega};
     return returnVelocity;
 
 }
@@ -55,4 +58,33 @@ motorCommands motionProfiling::scaleRPM(motorCommands rawCommands, float targetR
         rawCommands.rl * scale,
         rawCommands.rr * scale
     };
+}
+motorCommands motionProfiling::targetToMotorRPM(Pose targetPose,Pose currentPose, moveToPoseParam movementParams){
+    PoseError deltaPose;
+    // pre calculate deltas
+    deltaPose.deltaX = targetPose.x - currentPose.x;
+    deltaPose.deltaY = targetPose.y - currentPose.y;
+    deltaPose.deltaDeg = RoboMath::subDegrees(targetPose.heading,currentPose.heading);    
+    deltaPose.distanceToTarget = RoboMath::distance(deltaPose.deltaX,deltaPose.deltaY);
+
+    //threshold checks
+    bool useHeadingPD = fabsf(deltaPose.deltaDeg) < movementParams.headingCaptureThreshold;
+    bool usePosPD = deltaPose.distanceToTarget < movementParams.captureRadius;
+
+    if(useHeadingPD){
+        // Implement code for headingPD
+    }
+    velocities targetVelocities = pointToTrajectory(currentPose,targetPose,deltaPose,movementParams);
+    //convert from in/s to rpm using wheel travel using evil code
+    velocities targetVelocitiesRPM = RoboMath::velocitiesToRPM(targetVelocities);
+    //convert to motor commands
+    motorCommands rawMotorCommands = velocityToMotor(targetVelocitiesRPM);
+    //scale motor commands
+    motorCommands scaledMotorCommands = scaleRPM(rawMotorCommands, movementParams.scaleToRPM);
+
+    //create loop using velocity controller that exits when close enough
+    
+    //swap to positional pid and do that exiting when done
+
+    //uhh return unless i forgot something
 }

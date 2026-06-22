@@ -78,20 +78,9 @@ void Chassis::moveXDrive(float verticalRPM, float horizontalRPM, float turningRP
 	rearRight.move_velocity( (verticalRPM + horizontalRPM) - turningRPM);
 }
 
-void Chassis::moveToPose(Pose targetPose, moveToPoseParam parameters){
-    if (parameters.finishTurnBy == 0.0) return; // the user is an idiot
+void Chassis::moveToPoint(Pose targetPose, moveToPoseParam movementParams){
+    if (movementParams.turnCompletionDistance == 0.0) return; // the user is an idiot
     Pose currentPose = roboOdom->getPose();
-    velocities targetVelocities = motionProfile.pointToTrajectory(currentPose,targetPose,parameters.finishTurnBy);
-    //convert from in/s to rpm using wheel travel using evil code
-    velocities targetVelocitiesRPM = RoboMath::velocitiesToRPM(targetVelocities);
-    //convert to motor commands
-    motorCommands rawMotorCommands = motionProfile.velocityToMotor(targetVelocitiesRPM);
-    //scale motor commands
-    motorCommands scaledMotorCommands = motionProfile.scaleRPM(rawMotorCommands, parameters.scaleToRPM);
-
-    //create loop using velocity controller that exits when close enough
     
-    //swap to positional pid and do that exiting when done
-
-    //uhh return unless i forgot something
+    motorCommands velocityCommands = motionProfile.targetToMotorRPM(targetPose,currentPose,movementParams);
 }

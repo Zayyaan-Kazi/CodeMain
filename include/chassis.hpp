@@ -114,5 +114,5 @@ public:
     void moveXDrive(float verticalRPM, float horizontalRPM, float turningRPM);
 
     // No comments for now will add comments when functionality is fully done
-    void moveToPose(Pose targetPose, moveToPoseParam parameters);
+    void moveToPoint(Pose targetPose, moveToPoseParam movementParams);
 };
