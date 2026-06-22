@@ -65,10 +65,16 @@ float Chassis::getHeading(){
 }
 
 void Chassis::moveDrivetrain(motorCommands userCommands){
+    fl.calculateVoltage(userCommands.fl, frontLeft.get_actual_velocity());
+    fr.calculateVoltage(userCommands.fr, frontRight.get_actual_velocity());
+    rl.calculateVoltage(userCommands.rl, rearLeft.get_actual_velocity());
+    rr.calculateVoltage(userCommands.rr, rearRight.get_actual_velocity());
+
+    /* this one uses the motor's onboard PID which can be... problematic
     frontLeft.move_velocity(userCommands.fl);
     frontRight.move_velocity(userCommands.fr);
     rearLeft.move_velocity(userCommands.rl);
-    rearRight.move_velocity(userCommands.rr);
+    rearRight.move_velocity(userCommands.rr);*/
 }
 
 void Chassis::moveXDrive(float verticalRPM, float horizontalRPM, float turningRPM){
@@ -79,8 +85,15 @@ void Chassis::moveXDrive(float verticalRPM, float horizontalRPM, float turningRP
 }
 
 void Chassis::moveToPoint(Pose targetPose, moveToPoseParam movementParams){
-    if (movementParams.turnCompletionDistance == 0.0) return; // the user is an idiot
-    Pose currentPose = roboOdom->getPose();
+    motionProfile.reset();
+    fl.resetIntegral();
+    fr.resetIntegral();
+    rl.resetIntegral();
+    rr.resetIntegral();
+    while(!motionProfile.isSettled()){
+        Pose currentPose = roboOdom->getPose();
+        motorCommands velocityCommands = motionProfile.targetToMotorRPM(targetPose,currentPose,movementParams); //RPM
+        moveDrivetrain(velocityCommands);
+    }
     
-    motorCommands velocityCommands = motionProfile.targetToMotorRPM(targetPose,currentPose,movementParams);
 }

@@ -24,7 +24,7 @@ void odometry::updatePosition(){
     
     //Rotate to global via Rotation Matrix (https://en.wikipedia.org/wiki/Rotation_matrix)
     Pose localOffsetRotated;
-    float avgHeading = (globalPose.theta * 3.14159 / 180.0f) + headingDeltaRAD / 2.0f; // rotate by midpoint of heading for a more accurate change in heading
+    float avgHeading = (globalPose.heading * 3.14159 / 180.0f) + headingDeltaRAD / 2.0f; // rotate by midpoint of heading for a more accurate change in heading
     
     float cosAvgHeading = cosf(avgHeading); //compute once and cache
     float sinAvgHeading = sinf(avgHeading); // compute once and cache
@@ -33,7 +33,7 @@ void odometry::updatePosition(){
     
     globalPose.x += localOffsetRotated.x; // add local pose updates to global pose
     globalPose.y += localOffsetRotated.y;
-    globalPose.theta = mainChassis->getHeading(); //update heading 
+    globalPose.heading = mainChassis->getHeading(); //update heading 
 }
 
 void odometry::setPose(Pose newPose){

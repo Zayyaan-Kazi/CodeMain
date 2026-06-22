@@ -10,7 +10,7 @@ velocities motionProfiling::pointToTrajectory(Pose currentPose, Pose targetPose,
 
     float omega; // defined here to keep scope
     if(deltaPose.usingHeadingPD){
-        omega = movementParams.postTurnOmega;
+        omega = movementParams.postTurnOmega; // assume low omega value since we're basically already at our desired heading
     }
     else{
         float turnDistance = deltaPose.distanceToTarget - movementParams.turnCompletionDistance;
@@ -48,7 +48,7 @@ motorCommands motionProfiling::scaleRPM(motorCommands rawCommands, float targetR
                                 fabsf(rawCommands.rl),
                                 fabsf(rawCommands.rr)}); // want highest point of distribution to be targetRPM
     
-    if (highestMotorRPM < 1e-6) return rawCommands; // Division by zero is a real thing, could happen y'know.
+    if (highestMotorRPM < 1e-6f) return rawCommands; // Division by zero is a real thing, could happen y'know.
 
     float scale = targetRPM / highestMotorRPM; 
 
@@ -60,31 +60,68 @@ motorCommands motionProfiling::scaleRPM(motorCommands rawCommands, float targetR
     };
 }
 motorCommands motionProfiling::targetToMotorRPM(Pose targetPose,Pose currentPose, moveToPoseParam movementParams){
+    if (firstCall){
+        firstCall = false;
+        startTime = pros::millis();
+    }
     PoseError deltaPose;
     // pre calculate deltas
     deltaPose.deltaX = targetPose.x - currentPose.x;
     deltaPose.deltaY = targetPose.y - currentPose.y;
     deltaPose.deltaDeg = RoboMath::subDegrees(targetPose.heading,currentPose.heading);    
     deltaPose.distanceToTarget = RoboMath::distance(deltaPose.deltaX,deltaPose.deltaY);
-
+    
+    if( (deltaPose.distanceToTarget < movementParams.settleRadius) || (pros::millis() - startTime > movementParams.timeout)){
+        settled = true;
+        return {}; //return default motorCommands value (hardcoded all 4 at 0)
+    }
     //threshold checks
     bool useHeadingPD = fabsf(deltaPose.deltaDeg) < movementParams.headingCaptureThreshold;
     bool usePosPD = deltaPose.distanceToTarget < movementParams.captureRadius;
+    velocities targetVelocities;
+    if (usePosPD){
+        // rotate all to local frame
+        float curHeadingRAD = RoboMath::degToRad(currentPose.heading);                                          // note: once i test this on an actual x drive and ensure that the frame is proper
+        float localDeltaX = deltaPose.deltaX * cosf(curHeadingRAD) + deltaPose.deltaY * sinf(curHeadingRAD);    // I can have these calculations done before and so they're either used here or in
+        float localDeltaY = -deltaPose.deltaX * sinf(curHeadingRAD) + deltaPose.deltaY * cosf(curHeadingRAD);   // pointToTrajectory, since i am unsure i will test and see.
 
-    if(useHeadingPD){
-        // Implement code for headingPD
+        //calculate values from PD which will be scaled at in/s
+        targetVelocities.xVelocity = positionalPDX.update(localDeltaX, Config::positionalController::dt);
+        targetVelocities.yVelocity = positionalPDY.update(localDeltaY, Config::positionalController::dt);
+        targetVelocities.thetaVelocity = headingPD.update(deltaPose.deltaDeg, Config::positionalController::dt);
+        //convert from in/s to rpm using wheel travel using evil code
+        velocities targetVelocitiesRPM = RoboMath::velocitiesToRPM(targetVelocities);
+
+        //convert to motor commands
+        motorCommands rawMotorCommands = velocityToMotor(targetVelocitiesRPM);
+        
+        //Do not scale to target RPM because we are trying to correct for tiny amounts of error
+        return rawMotorCommands;
+    }else{
+        targetVelocities = pointToTrajectory(currentPose,targetPose,deltaPose,movementParams);
+        if(useHeadingPD){
+            targetVelocities.thetaVelocity = headingPD.update(deltaPose.deltaDeg, Config::positionalController::dt);
+        }
+        //convert from in/s to rpm using wheel travel using evil code
+        velocities targetVelocitiesRPM = RoboMath::velocitiesToRPM(targetVelocities);
+
+        //convert to motor commands
+        motorCommands rawMotorCommands = velocityToMotor(targetVelocitiesRPM);
+        //scale motor commands
+        motorCommands scaledMotorCommands = scaleRPM(rawMotorCommands, movementParams.scaleToRPM);
+        return scaledMotorCommands;
     }
-    velocities targetVelocities = pointToTrajectory(currentPose,targetPose,deltaPose,movementParams);
-    //convert from in/s to rpm using wheel travel using evil code
-    velocities targetVelocitiesRPM = RoboMath::velocitiesToRPM(targetVelocities);
-    //convert to motor commands
-    motorCommands rawMotorCommands = velocityToMotor(targetVelocitiesRPM);
-    //scale motor commands
-    motorCommands scaledMotorCommands = scaleRPM(rawMotorCommands, movementParams.scaleToRPM);
-
-    //create loop using velocity controller that exits when close enough
+        
     
-    //swap to positional pid and do that exiting when done
+}
 
-    //uhh return unless i forgot something
+bool motionProfiling::isSettled() {return settled;}
+
+void motionProfiling::reset() {
+    settled = false;
+    firstCall = true;
+    startTime = 0.0f;
+    headingPD.reset();
+    positionalPDX.reset();
+    positionalPDY.reset();
 }

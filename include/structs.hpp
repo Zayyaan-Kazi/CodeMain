@@ -11,19 +11,19 @@ struct Pose{ //
 	float heading;
 };
 struct motorCommands{
-    float fl; // front left
-    float fr; // front right
-    float rl; // rear left
-    float rr; // rear right
+    float fl = 0; // front left
+    float fr = 0; // front right
+    float rl = 0; // rear left
+    float rr = 0; // rear right
 };
 struct moveToPoseParam{
-    float turnCompletionDistance = Config::Defaults::moveToPose::turnCompletionDistance; // what point along the line (in) to reach desired heading 
+    float turnCompletionDistance = Config::Defaults::moveToPose::turnCompletionDistance; // what point along the line (in) to reach desired heading. This function starts at the target point and travels to current pose. Setting it to 0 means it will try complete turn at the same time as reaching point  
     float scaleToRPM; // RPM the min-max normalization targets
     float captureRadius; // radius (in) from target point to swap to positional PD
     float headingCaptureThreshold; // distance (deg) from target theta to swap to heading PD
     float settleRadius; // radius (in) from target point to consider it reached
-    float timeout; // time (sec) before move is considered done
     float postTurnOmega; // assumed omega (in/s) used to compute translational vector magnitude when turn is being managed by PD
+    uint32_t timeout; // time (miliseconds) before move is considered done
 };
 struct PoseError {
     float deltaX;

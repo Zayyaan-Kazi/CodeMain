@@ -24,7 +24,7 @@ namespace RoboMath{
 	}
 	float degToRad(float deg){
 		static const float conversion = pi / 180.0f;
-		return deg*pi;
+		return deg*conversion;
 	}
 	/** * @brief returns 1 if number is positive -1 if negative
 	 */
@@ -43,7 +43,7 @@ namespace RoboMath{
 		velocityRPM.xVelocity *= rpmConversion;
 		velocityRPM.yVelocity *= rpmConversion;
 		velocityRPM.thetaVelocity *= rpmConversion;
-
+		return velocityRPM;
 	}
 	
 	/*
