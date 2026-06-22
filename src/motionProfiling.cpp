@@ -2,8 +2,8 @@
 #include "motionProfiling.hpp"
 
 motionProfiling::motionProfiling() {}
-
-velocities motionProfiling::pointToTrajectory(Pose currentPose, Pose targetPose, float thetaD){
+//TODO: implement control for when turning is managed by PD
+velocities motionProfiling::pointToTrajectory(Pose currentPose, Pose targetPose, float turnCompletionDistance){
     //ensure all degrees are converted to radians
     float curHeadingRAD = RoboMath::degToRad(currentPose.theta);
     float targetThetaRAD = RoboMath::degToRad(targetPose.theta);
@@ -13,7 +13,9 @@ velocities motionProfiling::pointToTrajectory(Pose currentPose, Pose targetPose,
     float deltaY = targetPose.y - currentPose.y;
     float deltaThetaRAD = RoboMath::wrapRadian(targetThetaRAD - curHeadingRAD); // ensure radian is between [-pi, pi] for shortest path
 
-    float omegaRAD = (linearVelocity*deltaThetaRAD) / thetaD;  // Turning speed in rad/s
+    float targetDistance = RoboMath::distance(deltaX,deltaY);
+    float turnDistance = targetDistance - turnCompletionDistance;
+    float omegaRAD = (linearVelocity*deltaThetaRAD) / turnDistance;  // Turning speed in rad/s
     float omega = robotRadius* fabsf(omegaRAD); // this is the turning speed in in/s, we can use wheel travel to determine RPM
 
     float vectorMagnitude =  linearVelocity - omega; //hypotenuse of our velocity vector
@@ -24,7 +26,7 @@ velocities motionProfiling::pointToTrajectory(Pose currentPose, Pose targetPose,
     float velocityX = vectorMagnitude*cosf(localTheta); // Legs of triangle
     float velocityY = vectorMagnitude*sinf(localTheta);
 
-    velocities returnVelocity = {velocityX,velocityY,omega}; // this is also a stupid name
+    velocities returnVelocity = {velocityX,velocityY,omega};
     return returnVelocity;
 
 }
