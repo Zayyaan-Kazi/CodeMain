@@ -17,8 +17,11 @@ struct motorCommands{
     float rr; // rear right
 };
 struct moveToPoseParam{
-    float finishTurnBy; // what point along the line (in) to reach desired heading 
+    float turnCompletionDistance = Config::Defaults::moveToPose::turnCompletionDistance; // what point along the line (in) to reach desired heading 
     float scaleToRPM; // RPM the min-max normalization targets
-    float captureRadius; // radius (in) from target point to swap to positional PID
+    float captureRadius; // radius (in) from target point to swap to positional PD
+    float headingCaptureThreshold; // distance (deg) from target theta to swap to heading PD
     float settleRadius; // radius (in) from target point to consider it reached
+    float timeout; // time (sec) before move is considered done
+    float postTurnOmega; // assumed omega (in/s) used to compute translational vector magnitude when turn is being managed by PD
 };

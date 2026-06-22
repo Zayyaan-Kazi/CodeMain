@@ -3,7 +3,11 @@
 #include "structs.hpp"
 namespace RoboMath{
 	float pi = 3.1415926f;
-	float twopi = pi*2;
+	float tau = pi*2;
+
+	float distance(float a,float b){
+		return sqrtf(a*a+b*b);
+	}
     float overflowCheck(float deg) {
 	    // Normalize to [0, 360)
 	    float v = fmod(deg, 360.0);
@@ -15,7 +19,7 @@ namespace RoboMath{
 		return std::remainderf(delta,360); // normalize to [-180,180] before returning
 	}
 	float wrapRadian(float rad){
-		return std::remainderf(rad,twopi); // normalize to [-pi,pi]
+		return std::remainderf(rad,tau); // normalize to [-pi,pi]
 	}
 	float degToRad(float deg){
 		static const float conversion = pi / 180.0f;
