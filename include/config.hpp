@@ -2,6 +2,15 @@
 #include "main.h"
 #include "odometry.hpp"
 namespace Config{
+    namespace Defaults {
+        namespace moveToPose{
+            inline constexpr float finishTurnBy = 0; // what point along the line (in) to reach desired heading 
+            inline constexpr float scaleToRPM = 0; // RPM the min-max normalization targets
+            inline constexpr float captureRadius = 0; // radius (in) from target point to swap to positional PID
+            inline constexpr float settleRadius = 0; // radius (in) from target point to consider it reached
+
+        }//namespace moveToPose
+    }// namespace defaultStructValues
     namespace Ports {
         //Drivetrain Motor ports
         inline constexpr int8_t frontLeft = 1;
@@ -20,6 +29,8 @@ namespace Config{
     namespace Chassis{
         inline constexpr float wheelCircum = 0; // Input later
         inline constexpr int inertialSign = 1; // incase we need to change to CCW positive
+        inline constexpr float linearVelocity; // linear velocity of x drive (in/s) (not accounting for 1.41x increase)
+        inline constexpr float robotRadius; // distance between parallel wheel sets (in)
     }//namespace Chassis
 
     namespace Odometry{
@@ -37,9 +48,10 @@ namespace Config{
         namespace PI{
             inline constexpr float kP = 0; // constant for proportional (distance left)
             inline constexpr float kI = 0; // constant for integral (sum of distances)
-            inline constexpr float maxIntegral = 0; //prevents integral from heavily overpowering the motor
-            inline constexpr float integrealThreshold = 0; //prevents integral windup on large errors
+            inline constexpr float maxIntegral = 0; // prevents integral from heavily overpowering the motor
+            inline constexpr float integrealThreshold = 0; // prevents integral windup on large errors
         }//namespace PI
 
     }//namespace velocityControl
+
 } // namespace Config

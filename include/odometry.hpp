@@ -13,13 +13,7 @@
 #include "pros/imu.hpp"
 #include "config.hpp"
 #include "chassis.hpp"
-//structs
-struct Pose{
-	float x;
-	float y;
-	float theta;
-};
-
+#include "structs.hpp"
 //inline Pose globalPose {Config::initialPose}; // GLOBAL VERSION This is the pose that other classes will interact with 
 
 class odometry {

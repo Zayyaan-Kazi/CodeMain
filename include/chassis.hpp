@@ -1,6 +1,9 @@
 #pragma once
 #include "main.h"
 #include "config.hpp"
+#include "velocityController.hpp"
+#include "motionProfiling.hpp"
+class odometry; // forward declaration for odom object
 class Chassis {
 private:
     //motors -- Drivetrain
@@ -24,12 +27,24 @@ private:
     float rearPrevPos; // Previous reading, in degrees, of rear rotation sensor
     float headingLast; // Previous reading, in Degrees, of the robot heading
     int IMUSIGN {Config::Chassis::inertialSign}; // this is to flip the heading output because we need counter clockwise rotation to be +
+    odometry* roboOdom = nullptr; // odom object to declare later
+    
+    //Objects Drivetrain
+    velocityController fl;
+    velocityController rl;
+    velocityController fr;
+    velocityController rr;
+
+    motionProfiling motionProfile;
+
 public:
     /** @brief Constructor, initalizes controller.
      * ```cpp
      * Chassis roboChassis = Chassis(); ``` 
      * */
     Chassis();
+
+    void setOdometry(odometry* odom);
 
     /** @brief updates motors based on controller inputs. Driver control
      * Example code:
@@ -78,17 +93,14 @@ public:
      * */
     float getHeading();
     /** @brief Spins the X motors at a target RPM
-     *  @param FL the targeted RPM you want the front left motor to move
-     *  @param RL the targeted RPM you want the rear left motor to move
-     *  @param FR the targeted RPM you want the front right motor to move
-     *  @param RR the targeted RPM you want the rear right motor to move
+     *  @param userCommands each motor in the struct will target their rpm
      *  @warning do not call this function whilst calling driverUpdate
      *  ```cpp
      *  //Set all drivetrain motors to 30 RPM
      *  Chassis.moveDrivetrain(30,30,30,30);
      *  ```
      */
-    void moveDrivetrain(float FL, float RL, float FR, float RR);
+    void moveDrivetrain(motorCommands userCommands);
     /** @brief Spins the X motors at a target RPM in vertical, horizontal, and turning
      *  @param verticalRPM target RPM for forward/backward movement
      *  @param horizontalRPM target RPM for strafe/sideways movements
@@ -100,4 +112,7 @@ public:
      *  ```
      */
     void moveXDrive(float verticalRPM, float horizontalRPM, float turningRPM);
+
+    // No comments for now will add comments when functionality is fully done
+    void moveToPose(Pose targetPose, moveToPoseParam parameters);
 };

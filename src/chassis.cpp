@@ -1,9 +1,14 @@
 #include "chassis.hpp"
 #include "main.h"
 #include "robomath.hpp"
+#include "odometry.hpp"
+#include "structs.hpp"
 // initialzier for motors, imu, and controller
 Chassis::Chassis() : controllerMaster(pros::E_CONTROLLER_MASTER) {} 
 
+void Chassis::setOdometry(odometry* odom) {
+    roboOdom = odom;
+}
 
 void Chassis::driverUpdate(){
     // Drive control
@@ -59,16 +64,34 @@ float Chassis::getHeading(){
     return robotIMU.get_heading();
 }
 
-void Chassis::moveDrivetrain(float FL, float RL, float FR, float RR){
-    frontLeft.move_velocity(FL);
-    rearLeft.move_velocity(RL);
-    frontRight.move_velocity(FR);
-    rearRight.move_velocity(RR);
+void Chassis::moveDrivetrain(motorCommands userCommands){
+    frontLeft.move_velocity(userCommands.fl);
+    frontRight.move_velocity(userCommands.fr);
+    rearLeft.move_velocity(userCommands.rl);
+    rearRight.move_velocity(userCommands.rr);
 }
 
 void Chassis::moveXDrive(float verticalRPM, float horizontalRPM, float turningRPM){
     frontLeft.move_velocity( (verticalRPM + horizontalRPM) + turningRPM);
 	frontRight.move_velocity((verticalRPM - horizontalRPM) - turningRPM); 
-	rearLeft.move_velocity((verticalRPM - horizontalRPM) + turningRPM);
+	rearLeft.move_velocity(  (verticalRPM - horizontalRPM) + turningRPM);
 	rearRight.move_velocity( (verticalRPM + horizontalRPM) - turningRPM);
+}
+
+void Chassis::moveToPose(Pose targetPose, moveToPoseParam parameters){
+    if (parameters.finishTurnBy == 0.0) return; // the user is an idiot
+    Pose currentPose = roboOdom->getPose();
+    velocities targetVelocities = motionProfile.pointToTrajectory(currentPose,targetPose,parameters.finishTurnBy);
+    //convert from in/s to rpm using wheel travel using evil code
+    velocities targetVelocitiesRPM = RoboMath::velocitiesToRPM(targetVelocities);
+    //convert to motor commands
+    motorCommands rawMotorCommands = motionProfile.velocityToMotor(targetVelocitiesRPM);
+    //scale motor commands
+    motorCommands scaledMotorCommands = motionProfile.scaleRPM(rawMotorCommands, parameters.scaleToRPM);
+
+    //create loop using velocity controller that exits when close enough
+    
+    //swap to positional pid and do that exiting when done
+
+    //uhh return unless i forgot something
 }
