@@ -100,7 +100,7 @@ public:
      *  Chassis.moveDrivetrain(30,30,30,30);
      *  ```
      */
-    void moveDrivetrain(motorCommands userCommands);
+    void moveDrivetrain(const motorCommands& userCommands);
     /** @brief Spins the X motors at a target RPM in vertical, horizontal, and turning
      *  @param verticalRPM target RPM for forward/backward movement
      *  @param horizontalRPM target RPM for strafe/sideways movements
@@ -114,5 +114,5 @@ public:
     void moveXDrive(float verticalRPM, float horizontalRPM, float turningRPM);
 
     // No comments for now will add comments when functionality is fully done
-    void moveToPoint(Pose targetPose, moveToPoseParam movementParams);
+    void moveToPoint(const Pose& targetPose,const moveToPoseParam& movementParams);
 };

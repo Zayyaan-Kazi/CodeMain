@@ -64,7 +64,7 @@ float Chassis::getHeading(){
     return robotIMU.get_heading();
 }
 
-void Chassis::moveDrivetrain(motorCommands userCommands){
+void Chassis::moveDrivetrain(const motorCommands& userCommands){
     int32_t flVoltage = static_cast<int32_t>(fl.calculateVoltage(userCommands.fl, frontLeft.get_actual_velocity()));//cast these to in32t because thats waht the motor takes as a parameter
     int32_t frVoltage = static_cast<int32_t>(fr.calculateVoltage(userCommands.fr, frontRight.get_actual_velocity())); // its probably fine to leave them as floats but i'd like to state intention
     int32_t rlVoltage = static_cast<int32_t>(rl.calculateVoltage(userCommands.rl, rearLeft.get_actual_velocity()));
@@ -89,7 +89,7 @@ void Chassis::moveXDrive(float verticalRPM, float horizontalRPM, float turningRP
 	rearRight.move_velocity( (verticalRPM + horizontalRPM) - turningRPM);
 }
 
-void Chassis::moveToPoint(Pose targetPose, moveToPoseParam movementParams){
+void Chassis::moveToPoint(const Pose& targetPose,const moveToPoseParam& movementParams){
     motionProfile.reset();
     fl.resetIntegral();
     fr.resetIntegral();

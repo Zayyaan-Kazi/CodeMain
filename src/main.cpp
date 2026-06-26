@@ -1,7 +1,8 @@
 #include "main.h"
 #include "chassis.hpp"
 #include "config.hpp"
-Chassis roboChassis = Chassis();
+Chassis roboChassis;
+odometry roboOdom;
 
 /**
  * A callback function for LLEMU's center button.
@@ -27,6 +28,7 @@ void on_center_button() {
  */
 void initialize() {
 	roboChassis.initalizeRotationSensors(Config::Ports::rightRotation, Config::Ports::rearRotation);
+	roboChassis.setOdometry(&roboOdom);
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
 	pros::lcd::register_btn1_cb(on_center_button);
@@ -40,7 +42,7 @@ void initialize() {
  */
 void disabled() {}
 
-/**
+/** 
  * Runs after initialize(), and before autonomous when connected to the Field
  * Management System or the VEX Competition Switch. This is intended for
  * competition-specific initialization routines, such as an autonomous selector

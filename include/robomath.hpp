@@ -2,8 +2,8 @@
 #include <cmath>
 #include "structs.hpp"
 namespace RoboMath{
-	float pi = 3.1415926f;
-	float tau = pi*2;
+	inline constexpr float pi = 3.1415926f;
+	inline constexpr float tau = pi*2;
 
 	float distance(float a,float b){
 		return sqrtf(a*a+b*b);
@@ -29,7 +29,7 @@ namespace RoboMath{
 	/** * @brief returns 1 if number is positive -1 if negative
 	 */
 	int sign(float number){
-		if (number > 0){
+		if (number >= 0){
 			return 1; 
 		}
 		return -1;

@@ -37,7 +37,7 @@ void odometry::updatePosition(){
     globalPose.heading = mainChassis->getHeading(); //update heading 
 }
 
-void odometry::setPose(Pose newPose){
+void odometry::setPose(const Pose& newPose){
     globalPose = newPose;
 }
 

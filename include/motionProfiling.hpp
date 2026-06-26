@@ -16,23 +16,43 @@ PD headingPD{Config::positionalController::headingPD::kP,Config::positionalContr
 PD positionalPDX{Config::positionalController::X::kP, Config::positionalController::X::kD};
 PD positionalPDY{Config::positionalController::Y::kP, Config::positionalController::Y::kD};
 
-public:
-
-// constructor, write later. most likely will have no inputs
-motionProfiling();
+//functions
 
 /**  * @brief write later you have notes on this -ZK
  * @param currentPose the pose of the robot
  * @param targetPose the pose you want the robot to be in
  * @param turnCompletionDistance  at what point along the line you want to reach theta. Change the variable name later
 */
-velocities pointToTrajectory(Pose currentPose, Pose targetPose,PoseError deltaPose, moveToPoseParam movementParams ); //
+velocities pointToTrajectory(const Pose& currentPose,const Pose& targetPose, const PoseError& deltaPose, const moveToPoseParam& movementParams ); //
 /** * @brief write later, note that it has to be in RPM */
-motorCommands velocityToMotor(velocities velocityRPM);
+motorCommands velocityToMotor(const velocities& velocityRPM);
+/** * @brief min max normaization on motorcommmands to targetRPM
+ * @param rawCommands unscaled motor commands in RPM
+ * @param targetRPM speed you want the drivetrain to sca,le to
+ */
+motorCommands scaleRPM(const motorCommands& rawCommands, float targetRPM);
 
-motorCommands scaleRPM(motorCommands rawCommands, float targetRPM);
+public:
 
-motorCommands targetToMotorRPM(Pose targetPose,Pose currentPose, moveToPoseParam movementParams);
+// constructor, write later. most likely will have no inputs
+motionProfiling();
+
+
+/** @brief creates a trajectory to point and converts to motor commands
+ *  @param targetPose the point you want to reach
+ *  @param currentPose robot's current pose
+ *  @param movementParams constraints the robot tries to abide by. Read struct comments for more info
+ * ```cpp
+ * motionProfiling motionProfile;
+ * while(!motionProfile.isSettled()){
+ *  Pose currentPose = roboOdom->getPose();
+ *  motorCommands velocityCommands = motionProfile.targetToMotorRPM(targetPose,currentPose,movementParams); //RPM
+ *  moveDrivetrain(velocityCommands);
+ *  pros::delay(10);
+ * }
+ * ```
+ */
+motorCommands targetToMotorRPM(const Pose& targetPose,const Pose& currentPose,const moveToPoseParam& movementParams);
 
 // returns a boolean depending on if the robot is still actively trying to move toward its target point
 bool isSettled();

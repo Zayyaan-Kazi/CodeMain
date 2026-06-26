@@ -3,7 +3,7 @@
 
 motionProfiling::motionProfiling() {}
 //TODO: implement control for when turning is managed by PD
-velocities motionProfiling::pointToTrajectory(Pose currentPose, Pose targetPose,PoseError deltaPose, moveToPoseParam movementParams){
+velocities motionProfiling::pointToTrajectory(const Pose& currentPose,const Pose& targetPose,const PoseError& deltaPose, const moveToPoseParam& movementParams){
     //ensure all degrees are converted to radians
     float curHeadingRAD = RoboMath::degToRad(currentPose.heading); 
     float deltaThetaRAD = RoboMath::wrapRadian(RoboMath::degToRad(deltaPose.deltaDeg));
@@ -32,7 +32,7 @@ velocities motionProfiling::pointToTrajectory(Pose currentPose, Pose targetPose,
 
 }
 
-motorCommands motionProfiling::velocityToMotor(velocities velocityRPM){ 
+motorCommands motionProfiling::velocityToMotor(const velocities& velocityRPM){ 
     motorCommands rawCommandTrajectory;
     rawCommandTrajectory.fl = (velocityRPM.yVelocity + velocityRPM.xVelocity) + velocityRPM.thetaVelocity; //X drive motor matrix
     rawCommandTrajectory.fr = (velocityRPM.yVelocity - velocityRPM.xVelocity) - velocityRPM.thetaVelocity;
@@ -42,7 +42,7 @@ motorCommands motionProfiling::velocityToMotor(velocities velocityRPM){
 }
 
 // To anyone reading my code, if you want to know how the math below works search up min max normalization   
-motorCommands motionProfiling::scaleRPM(motorCommands rawCommands, float targetRPM){
+motorCommands motionProfiling::scaleRPM(const motorCommands& rawCommands, float targetRPM){
     float highestMotorRPM = std::max({fabsf(rawCommands.fl),
                                 fabsf(rawCommands.fr),
                                 fabsf(rawCommands.rl),
@@ -59,7 +59,7 @@ motorCommands motionProfiling::scaleRPM(motorCommands rawCommands, float targetR
         rawCommands.rr * scale
     };
 }
-motorCommands motionProfiling::targetToMotorRPM(Pose targetPose,Pose currentPose, moveToPoseParam movementParams){
+motorCommands motionProfiling::targetToMotorRPM(const Pose& targetPose,const Pose& currentPose, const moveToPoseParam& movementParams){
     if (firstCall){
         firstCall = false;
         startTime = pros::millis();
@@ -103,7 +103,7 @@ motorCommands motionProfiling::targetToMotorRPM(Pose targetPose,Pose currentPose
             targetVelocities.thetaVelocity = headingPD.update(deltaPose.deltaDeg, Config::positionalController::dt);
         }
         //convert from in/s to rpm using wheel travel using evil code
-        velocities targetVelocitiesRPM = RoboMath::velocitiesToRPM(targetVelocities);
+        velocities targetVelocitiesRPM = RoboMath::velocitiesToRPM(targetVelocities); // always ensure that thetaVelocity is in in/s when running this
 
         //convert to motor commands
         motorCommands rawMotorCommands = velocityToMotor(targetVelocitiesRPM);

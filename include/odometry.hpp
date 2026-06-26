@@ -55,7 +55,7 @@ public:
      *  odometry.setPose({10.0f,20.0f,30.0f});
      * ```
     */
-    void setPose(Pose newPose);
+    void setPose(const Pose& newPose);
 
     /** @brief getter for the pose of the robot
     *  @returns a pose object of the robot
