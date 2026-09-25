@@ -1,21 +1,25 @@
 #include "odometry.hpp"
 #include "chassis.hpp"
 #include "config.hpp"
+#include "structs.hpp"
+#include "robomath.hpp"
 #include <cmath>
 odometry::odometry(Chassis* _mainChassis) : mainChassis(_mainChassis){}
 
 void odometry::updatePosition(){
     
     float headingDelta = mainChassis->getHeadingDelta();
-    Pose localOffset; // create temporary pose to adjust without affecting the main one
-    float headingDeltaRAD = headingDelta * 3.14159 / 180.0; // convert to radians
-    auto distanceDeltas = mainChassis->getRotationDeltas(); // first is the right delta and second is the rear delta
+    auto distanceDeltas = mainChassis->getRotationDeltas();
     
+    Pose localOffset; // create temporary pose to adjust without affecting the main one
+    float headingDeltaRAD = RoboMath::degToRad(headingDelta); // convert to radians
     //Optimization caching, i don't want to mess with the compiler flags because they are scary - Kazi
-    float arcChordFactor =  2.0*sinf(headingDeltaRAD/2.0); // compute once and cache
-    float invHeadingDeltaRAD =  1.0f / headingDeltaRAD; // multiplication is faster than division on CPU
+    float halfHeadingDeltaRAD = headingDeltaRAD * 0.5f; // cache
+    float arcChordFactor =  2.0*sinf(halfHeadingDeltaRAD); // compute once and cache
+    
     
     if(fabsf(headingDelta) > tolerance){
+        float invHeadingDeltaRAD =  1.0f / headingDeltaRAD; // multiplication is faster than division on CPU
         localOffset.x = arcChordFactor * ((distanceDeltas.horizontal * invHeadingDeltaRAD) + disR); 
         localOffset.y = arcChordFactor * ((distanceDeltas.vertical * invHeadingDeltaRAD) + disB);
     }else{
@@ -25,7 +29,8 @@ void odometry::updatePosition(){
     
     //Rotate to global via Rotation Matrix (https://en.wikipedia.org/wiki/Rotation_matrix)
     Pose localOffsetRotated;
-    float avgHeading = (globalPose.heading * 3.14159 / 180.0f) + headingDeltaRAD / 2.0f; // rotate by midpoint of heading for a more accurate change in heading
+    // rotate by midpoint of heading for a more accurate change in heading
+    float avgHeading = (RoboMath::degToRad(globalPose.heading)) + halfHeadingDeltaRAD; 
     
     float cosAvgHeading = cosf(avgHeading); //compute once and cache
     float sinAvgHeading = sinf(avgHeading); // compute once and cache

@@ -1,8 +1,10 @@
 #include "main.h"
 #include "chassis.hpp"
 #include "config.hpp"
+#include "odometry.hpp"
 Chassis roboChassis;
-odometry roboOdom;
+odometry roboOdom = odometry(&roboChassis);
+
 
 /**
  * A callback function for LLEMU's center button.
@@ -64,7 +66,11 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	// example
+	// roboChassis.moveToPoint({20,30,152}, // X,Y,heading
+	// 	{.scaleToRPM = 100.0f, .settleRadius = 20.0f});
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task

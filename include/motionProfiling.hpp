@@ -4,6 +4,16 @@
 #include "robomath.hpp"
 #include "structs.hpp"
 #include "pd.hpp"
+
+struct moveToPoseParam{ // parameters for the movement when using point to trajectory, including default values from the config file.
+    float turnCompletionDistance = Config::Defaults::moveToPose::turnCompletionDistance; // what point along the line (in) to reach desired heading. This function starts at the target point and travels to current pose. Setting it to 0 means it will try complete turn at the same time as reaching point  
+    float scaleToRPM = Config::Defaults::moveToPose::scaleToRPM; // RPM the min-max normalization targets
+    float captureRadius = Config::Defaults::moveToPose::captureRadius; // radius (in) from target point to swap to positional PD
+    float headingCaptureThreshold = Config::Defaults::moveToPose::captureRadius; // distance (deg) from target theta to swap to heading PD
+    float settleRadius = Config::Defaults::moveToPose::settleRadius; // radius (in) from target point to consider it reached
+    float postTurnOmega; // assumed omega (in/s) used to compute translational vector magnitude when turn is being managed by PD
+    uint32_t timeout = Config::Defaults::moveToPose::timeout; // time (miliseconds) before move is considered done
+};
 class motionProfiling{ // The name is kinda a misnomer change later -ZK
 
 private:

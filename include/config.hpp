@@ -1,6 +1,7 @@
 #pragma once
 #include "main.h"
-#include "odometry.hpp"
+#include "structs.hpp"
+
 namespace Config{
     namespace Defaults { // default values for structs
         namespace moveToPose{
@@ -38,7 +39,7 @@ namespace Config{
         inline constexpr Pose initialPose = {0.0f,0.0f,0.0f}; // (X,Y,THETA)
         inline constexpr float distanceRight = 0.0f; // Distance from right sensor to tracking center
         inline constexpr float distanceRear = 0.0f; // Distance from rear sensor to tracking center
-        inline constexpr float tolerance = 1e-5f; // tolerance for 0s
+        inline constexpr float tolerance = 1e-5f; // tolerance for 0
     }//namespace Odometry
 
     namespace velocityControl{

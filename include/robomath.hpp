@@ -5,30 +5,30 @@ namespace RoboMath{
 	inline constexpr float pi = 3.1415926f;
 	inline constexpr float tau = pi*2;
 
-	float distance(float a,float b){
+	inline float distance(float a,float b){
 		return sqrtf(a*a+b*b);
 	}
-    float overflowCheck(float deg) {
+    inline float overflowCheck(float deg) {
 	    // Normalize to [0, 360)
 	    float v = fmod(deg, 360.0);
 	    if (v < 0) v += 360.0;
 	    return v;
     }
 	//deg1 - deg2 normalized to [-180,180]
-    float subDegrees(float deg1, float deg2){
+    inline float subDegrees(float deg1, float deg2){
 		float delta = deg1-deg2;
 		return std::remainderf(delta,360); // normalize to [-180,180] before returning
 	}
-	float wrapRadian(float rad){
+	inline float wrapRadian(float rad){
 		return std::remainderf(rad,tau); // normalize to [-pi,pi]
 	}
-	float degToRad(float deg){
+	inline float degToRad(float deg){
 		static const float conversion = pi / 180.0f;
 		return deg*conversion;
 	}
 	/** * @brief returns 1 if number is positive -1 if negative
 	 */
-	int sign(float number){
+	inline int sign(float number){
 		if (number >= 0){
 			return 1; 
 		}
@@ -37,7 +37,7 @@ namespace RoboMath{
 	/** * @brief converts in/s to motor RPM 
 	 * This assumes in/s 
 	 */
-	velocities velocitiesToRPM(velocities initVelocity){
+	inline velocities velocitiesToRPM(velocities initVelocity){
 		velocities velocityRPM = initVelocity; // create object to apply changes to
 		float rpmConversion = 60.0 / Config::Chassis::wheelCircum; // combine it all into 1 math thing (speed*60) / circum = RPM
 		velocityRPM.xVelocity *= rpmConversion;

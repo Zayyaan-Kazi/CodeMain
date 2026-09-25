@@ -113,6 +113,14 @@ public:
      */
     void moveXDrive(float verticalRPM, float horizontalRPM, float turningRPM);
 
-    // No comments for now will add comments when functionality is fully done
+    /** @brief Moves the chassis to a pose while guaranteeing the heading is reached at a point along the line 
+     *  @param targetPose {X,Y,Theta} the pose you want to the robot to be in
+     *  @param movementParams {TCD, speed, CR, HCT, SR, PTO, timeout} controls stuff like when to reach target heading and when to swap to PD
+     *  @note look at the moveToPoseParam struct to see more information on what each variable within movementParams does
+     *  ```cpp
+     *  roboChassis.moveToPoint({20,30,152}, // X,Y,heading
+		 {.scaleToRPM = 100.0f, .settleRadius = 20.0f}) //movement params, everything not specified is at default values;
+        ```
+    */
     void moveToPoint(const Pose& targetPose,const moveToPoseParam& movementParams);
 };

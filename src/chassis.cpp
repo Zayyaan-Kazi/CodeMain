@@ -101,5 +101,4 @@ void Chassis::moveToPoint(const Pose& targetPose,const moveToPoseParam& movement
         moveDrivetrain(velocityCommands);
         pros::delay(10); //
     }
-    
 }
