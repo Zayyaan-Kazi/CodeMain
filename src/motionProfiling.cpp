@@ -7,25 +7,26 @@ velocities motionProfiling::pointToTrajectory(const Pose& currentPose,const Pose
     //ensure all degrees are converted to radians
     float curHeadingRAD = RoboMath::degToRad(currentPose.heading); 
     float deltaThetaRAD = RoboMath::wrapRadian(RoboMath::degToRad(deltaPose.deltaDeg));
-
-    float omega; // defined here to keep scope
+    //omega defined here is to keep scope cause of the if else function
+    float omega; // Positive is clockwise rotation
     if(deltaPose.usingHeadingPD){
         omega = movementParams.postTurnOmega; // assume low omega value since we're basically already at our desired heading
     }
     else{
-        float turnDistance = deltaPose.distanceToTarget - movementParams.turnCompletionDistance;
+        //prevent division by 0 and keep positive 
+        float turnDistance = std::max(deltaPose.distanceToTarget - movementParams.turnCompletionDistance, 1e-6f);
         float omegaRAD = (linearVelocity*deltaThetaRAD) / turnDistance;  // Turning speed in rad/s
-        omega = robotRadius* fabsf(omegaRAD); // this is the turning speed in in/s, we can use wheel travel to determine RPM
+        omega = robotRadius * omegaRAD; // this is the turning speed in in/s, we can use wheel travel to determine RPM
     }
     
-
-    float vectorMagnitude =  linearVelocity - omega; //hypotenuse of our velocity vector
+    //added max statement because in the case of going below 0, it will push our robot away from the target
+    float vectorMagnitude =  std::max((linearVelocity - omega), 0.0f); //hypotenuse of our velocity vector
     float vectorTheta = atan2f(deltaPose.deltaX,deltaPose.deltaY);
 
     float localTheta = vectorTheta - curHeadingRAD; // get us within local frame of robot
     // when debugging: if velocityX and velocityY have weird behavior try global frame
-    float velocityX = vectorMagnitude*cosf(localTheta); // Legs of triangle
-    float velocityY = vectorMagnitude*sinf(localTheta);
+    float velocityX = vectorMagnitude*sinf(localTheta); // Legs of triangle
+    float velocityY = vectorMagnitude*cosf(localTheta);
 
     velocities returnVelocity = {velocityX,velocityY,omega};
     return returnVelocity;
@@ -82,8 +83,8 @@ motorCommands motionProfiling::targetToMotorRPM(const Pose& targetPose,const Pos
     if (usePosPD){
         // rotate all to local frame
         float curHeadingRAD = RoboMath::degToRad(currentPose.heading);                                          // note: once i test this on an actual x drive and ensure that the frame is proper
-        float localDeltaX = deltaPose.deltaX * cosf(curHeadingRAD) + deltaPose.deltaY * sinf(curHeadingRAD);    // I can have these calculations done before and so they're either used here or in
-        float localDeltaY = -deltaPose.deltaX * sinf(curHeadingRAD) + deltaPose.deltaY * cosf(curHeadingRAD);   // pointToTrajectory, since i am unsure i will test and see.
+        float localDeltaX = deltaPose.deltaX * cosf(curHeadingRAD) - deltaPose.deltaY * sinf(curHeadingRAD);    // I can have these calculations done before and so they're either used here or in
+        float localDeltaY = deltaPose.deltaX * sinf(curHeadingRAD) + deltaPose.deltaY * cosf(curHeadingRAD);   // pointToTrajectory, since i am unsure i will test and see.
 
         //calculate values from PD which will be scaled at in/s
         targetVelocities.xVelocity = positionalPDX.update(localDeltaX, Config::positionalController::dt);

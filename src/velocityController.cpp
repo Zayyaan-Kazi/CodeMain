@@ -15,7 +15,7 @@ float velocityController::calculateVoltage(float targetRPM, float currentRPM){
         integral = 0.0;
     }
     
-    if(fabs(error) > integralThreshold){ // add to integral when below threshold
+    if(fabs(error) < integralThreshold){ // add to integral when below threshold
         integral += error;
     }
     integral = std::clamp(integral, -maxIntegral, maxIntegral);
